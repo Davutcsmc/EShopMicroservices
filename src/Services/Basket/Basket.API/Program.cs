@@ -1,12 +1,16 @@
-﻿
-using BuildingBlocks.Exceptions.Handler;
+﻿using BuildingBlocks.Exceptions.Handler;
+using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
+// This line added to communicate grpc discount service without encryption
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Application services
 builder.Services.AddCarter();
 
 var assembly = typeof(Program).Assembly;
@@ -22,6 +26,7 @@ builder.Services.AddMediatR(config =>
     }
 });
 
+// Data services
 builder.Services.AddMarten(options =>
 {
     options.Connection(builder.Configuration.GetConnectionString("Database")!);
@@ -42,6 +47,27 @@ builder.Services.AddStackExchangeRedisCache(options =>
 //    return new CachedBasketRepository(baseRepository, provider.GetRequiredService<IDistributedCache>());
 //});
 
+// Grpc services
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
+{
+    options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountService"]!);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    
+    // Skip certificate validation for development (self-signed certificates)
+    // WARNING: Use only in development! Remove for production!
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback = 
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+    
+    return handler;
+});
+
+// Cross-cutting services
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddHealthChecks()
