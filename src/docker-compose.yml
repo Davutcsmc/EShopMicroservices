@@ -8,6 +8,9 @@ services:
   distributedcache:
     image: redis:7-alpine
 
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+  
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
