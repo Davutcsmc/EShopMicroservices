@@ -1,11 +1,8 @@
-﻿
-using BuildingBlocks.CQRS;
-using FluentValidation;
-using Ordering.Application.Dtos;
+﻿using FluentValidation;
 
 public record CreateOrderCommand(OrderDto Order) : ICommand<CreateOrderResult>;
 
-public record CreateOrderResult(Guid id);
+public record CreateOrderResult(Guid Id);
 
 
 public class CreateOrderCommandValidatior : AbstractValidator<CreateOrderCommand>
