@@ -2,6 +2,7 @@
 using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using BuildingBlocks.Messaging.MassTransit;
 
 // This line added to communicate grpc discount service without encryption
 AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
@@ -66,6 +67,8 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
     
     return handler;
 });
+
+builder.Services.AddMessageBroker(builder.Configuration);
 
 // Cross-cutting services
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
