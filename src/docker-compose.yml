@@ -10,6 +10,9 @@ services:
 
   orderdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
+
+  messagebroker:
+    image: rabbitmq:3-management-alpine
   
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
@@ -29,9 +32,20 @@ services:
       context: .
       dockerfile: Services/Discount/Discount.Grpc/Dockerfile
 
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+
+networks:
+  default:
+    name: eshop-network
+    driver: bridge
+
 volumes:
   postgres_catalog:
   postgres_basket:
-  discount_data:
-
-
+  mssql_order:
+  #discount_data:
+  

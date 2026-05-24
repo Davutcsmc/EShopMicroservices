@@ -4,6 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Override URLs to bind to all interfaces when in Docker
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")))
+{
+    builder.WebHost.UseUrls("https://+:8081", "http://+:8080");
+}
+
 // Add services to the container.
 builder.Services.AddGrpc();
 
